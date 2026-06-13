@@ -7,16 +7,19 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
       - name: Build release binary
         run: cargo build --release
-      - name: Rename binaries for clarity
+
+      - name: Rename and Package Binaries
         shell: bash
         run: |
           mkdir -p assets
@@ -26,12 +29,6 @@ jobs:
             else
               mv target/release/drc-crawl.exe assets/drc-crawl-windows.exe
             fi
-          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-            if [ -f target/release/drc_crawl ]; then
-              mv target/release/drc_crawl assets/drc-crawl-mac
-            else
-              mv target/release/drc-crawl assets/drc-crawl-mac
-            fi
           else
             if [ -f target/release/drc_crawl ]; then
               mv target/release/drc_crawl assets/drc-crawl-linux
@@ -39,6 +36,7 @@ jobs:
               mv target/release/drc-crawl assets/drc-crawl-linux
             fi
           fi
+
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v1
         with:
